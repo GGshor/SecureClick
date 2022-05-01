@@ -2,6 +2,8 @@
 	Makes given table a string, label can be added or "TABLE" would be used as default.
 	Use deepPrint for also adding tables that are in the table!
 
+	@function
+
 	@param tbl {[any]: any} -- The table that becomes a string
 	@param label string? -- Add a label to string (like a title)
 	@param deepPrint boolean? -- Also print tables in the given table
