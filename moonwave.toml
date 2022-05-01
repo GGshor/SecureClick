@@ -3,8 +3,6 @@ gitRepoUrl = "https://github.com/Roblox-Security/SecureClick"
 gitSourceBranch = "main"
 autoSectionPath = "src"
 changelog = true
-apiCategories = [
-]
 
 [docusaurus]
 tagline = "Secure Click"
