@@ -1,8 +1,3 @@
---[[
-	For documentation go to: unknown
-]]
-
-
 --// Services
 local HttpService = game:GetService("HttpService")
 local Players = game:GetService("Players")
