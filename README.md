@@ -1,2 +1,4 @@
 # SecureClick
-An easy to use secure clickdetector
+
+## About
+Creates a secure clickdetector that is easy to use!
