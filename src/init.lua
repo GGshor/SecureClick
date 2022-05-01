@@ -46,7 +46,9 @@ end
 
 	@within SecureClick
 
-	@param ... any -- Argument to make boolean
+	@param playerWhoClicked Player -- Player who clicked
+	@param clickDetector ClickDetector -- The clickdetector that got activated
+	@param maxActivationDistance number -- The max activation distance of the clickdetector
 
 	@return boolean -- If click is valid
 	@return string -- Reason
