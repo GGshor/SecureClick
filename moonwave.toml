@@ -6,6 +6,9 @@ changelog = true
 
 [docusaurus]
 tagline = "Secure Click"
+onBrokenLinks = "throw"
+onBrokenMarkdownLinks = "warn"
+favicon = ""
 
 [footer]
 style = "dark"
