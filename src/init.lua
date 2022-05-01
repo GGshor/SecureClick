@@ -29,7 +29,7 @@ SecureClick.__index = SecureClick
 
 	@within SecureClick
 
-	@params ... any -- Argument to make boolean
+	@param ... any -- Argument to make boolean
 
 	@return boolean
 ]=]
@@ -46,7 +46,7 @@ end
 
 	@within SecureClick
 
-	@params ... any -- Argument to make boolean
+	@param ... any -- Argument to make boolean
 
 	@return boolean -- If click is valid
 	@return string -- Reason
