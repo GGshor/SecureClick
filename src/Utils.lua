@@ -1,17 +1,17 @@
 --[=[
+	@class Utils
+]=]
+local Utils = {}
+
+--[=[
 	Makes given table a string, label can be added or "TABLE" would be used as default.
 	Use deepPrint for also adding tables that are in the table!
 
-	@function TableToString
-
 	@param tbl {[any]: any} -- The table that becomes a string
 	@param label string? -- Add a label to string (like a title)
-	@param deepPrint boolean? -- Also print tables in the given table
-
-	@return string -- Table in form of a string
+	@param deepPrint boolean? -- Also tables in the given table
 ]=]
-return function (tbl: table, label: string?, deepPrint: boolean?): string
-
+function Utils:TableToString(tbl: table, label: string?, deepPrint: boolean?): string
 	assert(type(tbl) == "table", "First argument must be a table")
 	assert(label == nil or type(label) == "string", "Second argument must be a string or nil")
 
@@ -65,3 +65,5 @@ return function (tbl: table, label: string?, deepPrint: boolean?): string
 
 	return (table.concat(strTbl, ""))
 end
+
+return Utils

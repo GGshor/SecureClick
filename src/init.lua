@@ -9,7 +9,7 @@ local Players = game:GetService("Players")
 local ServerStorage = game:GetService("ServerStorage")
 local Maid = require(script.Maid)
 local Signal = require(script.Signal)
-local TableToString = require(script.TableToString)
+local Utils = require(script.Utils)
 
 
 --[=[
@@ -24,9 +24,15 @@ local SecureClick = {
 SecureClick.__index = SecureClick
 
 
---[[
-	Transforms arguments to a boolean
---]]
+--[=[
+	Makes argument a boolean
+
+	@within SecureClick
+
+	@params ... any -- Argument to make boolean
+
+	@return boolean
+]=]
 local function ToBoolean(...: any): boolean
 	if ... then
 		return true
@@ -35,10 +41,17 @@ local function ToBoolean(...: any): boolean
 	end
 end
 
---[[
-	Checks the player who clicked the clickdetector
---]]
-local function CheckClick(playerWhoClicked: Player, clickDetector: ClickDetector, maxActivationDistance: number)
+--[=[
+	Makes argument a boolean
+
+	@within SecureClick
+
+	@params ... any -- Argument to make boolean
+
+	@return boolean -- If click is valid
+	@return string -- Reason
+]=]
+local function CheckClick(playerWhoClicked: Player, clickDetector: ClickDetector, maxActivationDistance: number): (boolean, string)
 	if (playerWhoClicked and
 		playerWhoClicked.Character and
 		playerWhoClicked.Character:FindFirstChild("HumanoidRootPart")) and
@@ -207,7 +220,7 @@ function SecureClick.new(parent: Instance)
 				}
 			}
 
-			warn("[SecureClick.Error] - Unexpected fail, printing data and firing onError.\n", TableToString(currentData, "Click event data", true))
+			warn("[SecureClick.Error] - Unexpected fail, printing data and firing onError.\n", Utils:TableToString(currentData, "Click event data", true))
 
 			self._onError:Fire("Something didn't exist", {
 				PlayerWhoClicked = {
