@@ -10,7 +10,7 @@ ClickDetector.__index = ClickDetector
 --[=[
 	Runs callback when click is valid
 
-	@param callback (playerWhoClicked: player) -> () -- Callback that runs on click
+	@param callback (playerWhoClicked: Player) -> () -- Callback that runs on click
 
 	@return RBXScriptConnection -- Connection that is made
 ]=]
@@ -32,7 +32,7 @@ end
 --[=[
 	Runs callback when player has been blocked
 
-	@param callback (playerBlocked: player) -> () -- Callback that runs on blocked
+	@param callback (playerBlocked: Player) -> () -- Callback that runs on blocked
 
 	@return RBXScriptConnection -- Connection that is made
 ]=]
@@ -43,7 +43,7 @@ end
 --[=[
 	Runs callback when player has been timed out
 
-	@param callback (playerTimedOut: player) -> () -- Callback that runs on time out
+	@param callback (playerTimedOut: Player) -> () -- Callback that runs on time out
 
 	@return RBXScriptConnection -- Connection that is made
 ]=]
@@ -54,7 +54,7 @@ end
 --[=[
 	Runs callback when player clicked too far
 
-	@param callback (playerWhoClicked: player) -> () -- Callback that runs on too far
+	@param callback (playerWhoClicked: Player) -> () -- Callback that runs on too far
 
 	@return RBXScriptConnection -- Connection that is made
 ]=]
@@ -76,7 +76,7 @@ end
 --[=[
 	Runs callback when player has an auto clicker
 
-	@param callback (playerWhoClicked: player) -> () -- Callback that runs on atuo clicker detected
+	@param callback (playerWhoClicked: Player) -> () -- Callback that runs on atuo clicker detected
 
 	@return RBXScriptConnection -- Connection that is made
 ]=]
