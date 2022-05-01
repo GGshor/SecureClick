@@ -8,3 +8,7 @@ apiCategories = [
 
 [docusaurus]
 tagline = "Secure Click"
+
+[footer]
+style = "dark"
+copyright = "Copyright © 2022 GGshor. Built with Moonwave and Docusaurus"
