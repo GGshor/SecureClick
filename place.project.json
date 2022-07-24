@@ -1,0 +1,15 @@
+{
+    "name": "SecureClick",
+
+    "tree": {
+        "$className": "DataModel",
+
+        "ServerStorage": {
+            "$className": "ServerStorage",
+            
+            "SecureClick": {
+                "$path": "./src"
+            }
+        }
+    }
+}
