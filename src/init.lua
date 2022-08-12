@@ -222,7 +222,7 @@ function SecureClick.new(parent: Instance)
 				}
 			}
 
-			warn("[SecureClick.Error] - Unexpected fail, printing data and firing onError.\n", Utils:TableToString(currentData, "Click event data", true))
+			warn("[SecureClick.Error] - Unexpected fail, printing data and firing onError.\n", Utils.TableToString(currentData, "Click event data", true))
 
 			self._onError:Fire("Something didn't exist", {
 				PlayerWhoClicked = {

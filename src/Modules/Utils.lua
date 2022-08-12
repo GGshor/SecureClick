@@ -11,7 +11,7 @@ local Utils = {}
 	@param label string? -- Add a label to string (like a title)
 	@param deepPrint boolean? -- Also tables in the given table
 ]=]
-function Utils:TableToString(tbl: table, label: string?, deepPrint: boolean?): string
+function Utils.TableToString(tbl: table, label: string?, deepPrint: boolean?): string
 	assert(type(tbl) == "table", "First argument must be a table")
 	assert(label == nil or type(label) == "string", "Second argument must be a string or nil")
 
