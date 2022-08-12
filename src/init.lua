@@ -2,9 +2,14 @@
 local HttpService = game:GetService("HttpService")
 local Players = game:GetService("Players")
 local ServerStorage = game:GetService("ServerStorage")
-local Maid = require(script.Maid)
-local Signal = require(script.Signal)
-local Utils = require(script.Utils)
+
+--// Modules
+local Maid = require(script.Modules.Maid)
+local Signal = require(script.Modules.Signal)
+local Utils = require(script.Modules.Utils)
+
+--// Classes
+local ClickDetector = require(script.Classes.ClickDetector)
 
 
 --[=[
@@ -115,7 +120,7 @@ end
 	@param parent Instance -- To what should the clickdetector be parented to?
 ]=]
 function SecureClick.new(parent: Instance)
-	local self = setmetatable({}, require(script.ClickDetector))
+	local self = setmetatable({}, ClickDetector)
 	local ClickObject = Instance.new("ClickDetector")
 	local maid = Maid.new()
 	local onClick = Signal.new()
@@ -217,7 +222,7 @@ function SecureClick.new(parent: Instance)
 				}
 			}
 
-			warn("[SecureClick.Error] - Unexpected fail, printing data and firing onError.\n", Utils:TableToString(currentData, "Click event data", true))
+			warn("[SecureClick.Error] - Unexpected fail, printing data and firing onError.\n", Utils.TableToString(currentData, "Click event data", true))
 
 			self._onError:Fire("Something didn't exist", {
 				PlayerWhoClicked = {
