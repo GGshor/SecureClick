@@ -1,5 +1,3 @@
-autoSectionPath = "src"
-changelog = true
 classOrder = [
     "SecureInput",
     "Utils",
