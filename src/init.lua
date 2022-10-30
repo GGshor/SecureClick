@@ -31,7 +31,6 @@ end
 local Unified3DInput = require(Unified3DInputModule)
 local Unified3DInputTypes = require(Unified3DInputModule.Unified3DInputTypes)
 
-
 --[=[
 	@class SecureInput
 
@@ -42,7 +41,7 @@ local Unified3DInputTypes = require(Unified3DInputModule.Unified3DInputTypes)
 local SecureInput = {
 	["Blacklist"] = {},
 	["TooFar"] = Signal.new(),
-	["AutoClick"] = Signal.new()
+	["AutoClick"] = Signal.new(),
 }
 SecureInput.__index = SecureInput
 
@@ -64,11 +63,8 @@ local function CheckInput(
 	input: Unified3DInputTypes.Unified3DInput
 ): (boolean, string)
 	if
-		(
-			player
-			and player.Character
-			and player.Character:FindFirstChild("HumanoidRootPart")
-		) and (input and input.Part)
+		(player and player.Character and player.Character:FindFirstChild("HumanoidRootPart"))
+		and (input and input.Part)
 	then
 		if distance <= (input.MaxActivationDistance + 10) then -- Add 10 to avoid false detections
 			return true, "Valid"
@@ -204,12 +200,10 @@ function SecureInput.new(parent: Instance)
 			self._onClick:Fire(playerWhoActivated)
 			self._debounce = false
 			return
-
 		elseif accepted == false and reason == "DistanceError" then
 			SecureInput.TooFar:Fire(playerWhoActivated)
 			self._debounce = false
 			return
-
 		elseif accepted == false and reason == "ParamError" then
 			local currentData = {
 				PlayerWhoClicked = {
@@ -217,7 +211,9 @@ function SecureInput.new(parent: Instance)
 					Name = (playerWhoActivated and playerWhoActivated.Name or "nil"),
 					UserId = (playerWhoActivated and playerWhoActivated.UserId or "nil"),
 					Character = (
-						playerWhoActivated and playerWhoActivated.Character and playerWhoActivated.Character:GetFullName()
+						playerWhoActivated
+							and playerWhoActivated.Character
+							and playerWhoActivated.Character:GetFullName()
 						or "nil"
 					),
 					HumanoidRootPart = (
@@ -230,17 +226,15 @@ function SecureInput.new(parent: Instance)
 				},
 				Input = {
 					Instance = (self._input and "true" or "nil"),
-					Parent = (
-						self._input
-							and self._input.Part
-							and self._input.Part:GetFullName()
-						or "nil"
-					),
+					Parent = (self._input and self._input.Part and self._input.Part:GetFullName() or "nil"),
 				},
 			}
 
-			task.spawn(error, "[SecureInput.Error] - Unexpected fail, printing data and firing onError.\n" ..
-			Utils.TableToString(currentData, "Input event data", true))
+			task.spawn(
+				error,
+				"[SecureInput.Error] - Unexpected fail, printing data and firing onError.\n"
+					.. Utils.TableToString(currentData, "Input event data", true)
+			)
 
 			self._debounce = false
 			return
