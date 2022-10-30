@@ -1,6 +1,9 @@
 {
   "name": "SecureInput",
   "tree": {
-    "$path": "./src"
+    "$path": "./src",
+    "Unified3DInput": {
+      "$path": "Unified-3D-Input/src"
+    }
   }
 }
