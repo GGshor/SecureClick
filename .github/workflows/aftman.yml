@@ -1,0 +1,36 @@
+name: run aftman tools
+
+on:
+  push:
+    branches: [main]
+
+jobs:
+  selene:
+    name: Setup selene
+    runs-on: ubuntu-latest
+    steps:
+    - uses: actions/checkout@v2
+
+    - uses: ok-nick/setup-aftman@v0.3.0
+      with:
+          token: ${{ SECRETS.GITHUB_TOKEN }}
+
+    - name: Selene check
+      run: |
+        selene ./src
+
+  stylua:
+    name: Run format
+    runs-on: ubuntu-latest
+    steps:
+    - uses: actions/checkout@v2
+
+    - uses: JohnnyMorganz/stylua-action@v1
+      with:
+        token: ${{ secrets.GITHUB_TOKEN }}
+        version: 0.15.1
+        args: -f stylua.toml ./src
+
+    - uses: reviewdog/action-suggester@v1.6.0
+      with:
+        tool_name: stylua
