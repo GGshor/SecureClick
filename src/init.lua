@@ -1,81 +1,76 @@
---// Services
-local HttpService = game:GetService("HttpService")
+--[[
+	Secures unified 3D input
+
+	@GGshor
+]]
+
 local Players = game:GetService("Players")
-local ServerStorage = game:GetService("ServerStorage")
+local ReplicatedStorage = game:GetService("ReplicatedStorage")
 
---// Modules
-local Maid = require(script.Modules.Maid)
-local Signal = require(script.Modules.Signal)
-local Utils = require(script.Modules.Utils)
+local Maid = require(script.Maid)
+local Signal = require(script.Signal)
+local Utils = require(script.Utils)
 
---// Classes
-local ClickDetector = require(script.Classes.ClickDetector)
+-- Init Unified3DInput
+local Unified3DInputModule = script:FindFirstChild("Unified3DInput")
+
+if ReplicatedStorage:FindFirstChild("Unified3DInput") then
+	Unified3DInputModule = ReplicatedStorage.Unified3DInput
+else
+	script.Unified3DInput.Parent = ReplicatedStorage
+	Unified3DInputModule = ReplicatedStorage.Unified3DInput
+end
+
+Players.PlayerAdded:Connect(function(player)
+	local clone = script.SetupInput:Clone()
+	clone.Parent = player:WaitForChild("PlayerGui")
+end)
+
+local Unified3DInput = require(Unified3DInputModule)
+local Unified3DInputTypes = require(Unified3DInputModule.Unified3DInputTypes)
 
 --[=[
-	@class SecureClick
-	Creates secure clickdetectors
+	@class SecureInput
+
+	Creates secure inputs
 
 	@server
 ]=]
-local SecureClick = {
-	["PublicBlacklist"] = {},
+local SecureInput = {
+	["Blacklist"] = {},
+	["TooFar"] = Signal.new(),
+	["AutoClick"] = Signal.new(),
 }
-SecureClick.__index = SecureClick
+SecureInput.__index = SecureInput
 
 --[=[
 	Makes argument a boolean
 
-	@within SecureClick
+	@within SecureInput
 
-	@param ... any -- Argument to make boolean
-
-	@return boolean
-]=]
-local function ToBoolean(...: any): boolean
-	if ... then
-		return true
-	else
-		return false
-	end
-end
-
---[=[
-	Makes argument a boolean
-
-	@within SecureClick
-
-	@param playerWhoClicked Player -- Player who clicked
-	@param clickDetector ClickDetector -- The clickdetector that got activated
-	@param maxActivationDistance number -- The max activation distance of the clickdetector
+	@param player Player -- Player who the input came from
+	@param distance number -- The distance of player when input got activated
+	@param input any -- The input
 
 	@return boolean -- If click is valid
 	@return string -- Reason
 ]=]
-local function CheckClick(
-	playerWhoClicked: Player,
-	clickDetector: ClickDetector,
-	maxActivationDistance: number
+local function CheckInput(
+	player: Player,
+	distance: number,
+	input: Unified3DInputTypes.Unified3DInput
 ): (boolean, string)
 	if
-		(
-			playerWhoClicked
-			and playerWhoClicked.Character
-			and playerWhoClicked.Character:FindFirstChild("HumanoidRootPart")
-		) and (clickDetector and clickDetector.Parent)
+		(player and player.Character and player.Character:FindFirstChild("HumanoidRootPart"))
+		and (input and input.Part)
 	then
-		local character = playerWhoClicked.Character
-		local root = character.HumanoidRootPart
-		local clickParent = clickDetector.Parent
-
-		local distance = (root.Position - clickParent.Position).Magnitude
-
-		if distance <= (maxActivationDistance + 1) then -- Add 1 to avoid false detections
-			return true, "VALID"
+		if distance <= (input.MaxActivationDistance + 10) then -- Add 10 to avoid false detections
+			return true, "Valid"
 		else
-			return false, "TOO FAR"
+			return false, "DistanceError"
 		end
 	else
-		return false, "NO EXIST"
+		return false, "ParamError"
 	end
 end
 
@@ -84,9 +79,9 @@ end
 
 	@param player Player -- Targeted player
 ]=]
-function SecureClick:Block(player: Player)
+function SecureInput:Block(player: Player)
 	if player and player.Parent == Players then
-		table.insert(SecureClick.PublicBlacklist, player.UserId)
+		table.insert(SecureInput.Blacklist, player.UserId)
 	end
 end
 
@@ -95,9 +90,9 @@ end
 
 	@param player Player -- Targeted player
 ]=]
-function SecureClick:Unblock(player: Player)
+function SecureInput:Unblock(player: Player)
 	if player and player.Parent == Players then
-		table.remove(SecureClick.PublicBlacklist, player.UserId)
+		table.remove(SecureInput.Blacklist, player.UserId)
 	end
 end
 
@@ -107,154 +102,177 @@ end
 	@param player Player -- Targeted player
 	@param seconds number -- Amount of time to wait before removing player from public blacklist
 ]=]
-function SecureClick:Timeout(player: Player, seconds: number)
+function SecureInput:Timeout(player: Player, seconds: number)
 	task.spawn(function()
-		SecureClick:Block(player)
+		SecureInput:Block(player)
 		task.wait(seconds)
-		SecureClick:Unblock(player)
+		SecureInput:Unblock(player)
 	end)
 end
 
 --[=[
-	Creates a new secure clickdetector
+	Runs given function if input is valid
 
-	@param parent Instance -- To what should the clickdetector be parented to?
+	@param func (playerWhoActivated: Player) -> () -- The function to connect to
+
+	@return RBXScriptConnection
 ]=]
-function SecureClick.new(parent: Instance)
-	local self = setmetatable({}, ClickDetector)
-	local ClickObject = Instance.new("ClickDetector")
+function SecureInput:ConnectActivated(func: (Player) -> ())
+	self._onClick:Connect(func)
+end
+
+--[=[
+	Adds new input
+
+	@param inputType string -- Type of input, current types: "ClickDetector", "ProximityPrompt" and "VRHandInteract"
+	@param properties {[string]: any}? -- Properties of instance
+]=]
+function SecureInput:AddInput(inputType: string, properties: { [string]: any }?)
+	self._input:AddInput(inputType, properties)
+	return self
+end
+
+--[=[
+	Changes max activation distance
+
+	@param distance number -- New max activation distance
+]=]
+function SecureInput:SetMaxActivationDistance(distance: number)
+	self._input:SetMaxActivationDistance(distance)
+	return self
+end
+
+--[=[
+	Enables input (Note, input is enabled by default)
+]=]
+function SecureInput:Enable()
+	self._input:Enable()
+	return self
+end
+
+--[=[
+	Disables input
+]=]
+function SecureInput:Disable()
+	self._input:Disable()
+	return self
+end
+
+--[=[
+	Disconnects all connections and removes inputs
+]=]
+function SecureInput:Destroy()
+	self._maid:DoCleaning()
+end
+
+--[=[
+	Creates a new secure input
+
+	@param parent Instance -- To what should the input be parented to?
+]=]
+function SecureInput.new(parent: Instance)
+	local self = setmetatable({}, SecureInput)
+	local Input = Unified3DInput.new(parent)
 	local maid = Maid.new()
 	local onClick = Signal.new()
-	local onAutoClick = Signal.new()
-	local onTimeout = Signal.new()
-	local onTooFar = Signal.new()
-	local onBlock = Signal.new()
-	local onError = Signal.new()
 
 	self._maid = maid
 	self._debounce = false
 	self._onClick = onClick
-	self._onAutoClick = onAutoClick
-	self._onTimeout = onTimeout
-	self._onTooFar = onTooFar
-	self._onBlock = onBlock
-	self._onError = onError
-	self._ClickDetector = ClickObject
-	self._maxActivationDistance = self._ClickDetector.MaxActivationDistance
-	self._privateBlacklist = {}
-	self._privateClickCount = {}
+	self._input = Input
+	self._blacklist = {}
+	self._clickCount = {}
 
 	self._maid.onClick = self._onClick
-	self._maid._onAutoClick = self._onAutoClick
-	self._maid.onTimeout = self._onTimeout
-	self._maid.onTooFar = self._onTooFar
-	self._maid.onBlock = self.onBlock
-	self._maid.onError = self._onError
-	self._maid.ClickDetector = self._ClickDetector
+	self._maid.input = self._input
 
-	self._ClickDetector.Name = HttpService:GenerateGUID(false)
-	self._ClickDetector.Parent = parent
-
-	self._ClickDetector.MouseClick:Connect(function(playerWhoClicked: Player)
+	self._input.Activated:Connect(function(playerWhoActivated: Player, distance: number)
 		if self._debounce == true then
 			return
 		end
+		self._debounce = true
 
 		if
-			table.find(SecureClick.PublicBlacklist, playerWhoClicked.UserId)
-			or table.find(self._privateBlacklist, playerWhoClicked.UserId)
+			table.find(SecureInput.Blacklist, playerWhoActivated.UserId)
+			or table.find(self._blacklist, playerWhoActivated.UserId)
 		then
-			self._onBlock:Fire(playerWhoClicked)
+			self._debounce = false
 			return
 		end
 
 		task.spawn(function()
-			if self._privateClickCount[tostring(playerWhoClicked.UserId)] then
-				self._privateClickCount[tostring(playerWhoClicked.UserId)] += 1
+			if self._clickCount[tostring(playerWhoActivated.UserId)] then
+				self._clickCount[tostring(playerWhoActivated.UserId)] += 1
 
 				task.wait(1)
 
-				if self._privateClickCount[tostring(playerWhoClicked.UserId)] > 0 then
-					self._privateClickCount[tostring(playerWhoClicked.UserId)] -= 1
+				if self._clickCount[tostring(playerWhoActivated.UserId)] > 0 then
+					self._clickCount[tostring(playerWhoActivated.UserId)] -= 1
 				else
-					self._privateClickCount[tostring(playerWhoClicked.UserId)] = 0
+					self._clickCount[tostring(playerWhoActivated.UserId)] = 0
 				end
 			else
-				self._privateClickCount[tostring(playerWhoClicked.UserId)] = 1
+				self._clickCount[tostring(playerWhoActivated.UserId)] = 1
 
 				task.wait(1)
 
-				if self._privateClickCount[tostring(playerWhoClicked.UserId)] > 0 then
-					self._privateClickCount[tostring(playerWhoClicked.UserId)] -= 1
+				if self._clickCount[tostring(playerWhoActivated.UserId)] > 0 then
+					self._clickCount[tostring(playerWhoActivated.UserId)] -= 1
 				else
-					self._privateClickCount[tostring(playerWhoClicked.UserId)] = 0
+					self._clickCount[tostring(playerWhoActivated.UserId)] = 0
 				end
 			end
 		end)
 
-		if self._privateClickCount[tostring(playerWhoClicked.UserId)] > 16 then
-			self:Timeout(playerWhoClicked, (5 * 60))
-			self._onTimeout:Fire(playerWhoClicked)
-			self._onAutoClick:Fire(playerWhoClicked)
+		if self._clickCount[tostring(playerWhoActivated.UserId)] > 16 then
+			self:Timeout(playerWhoActivated, (5 * 60))
+			SecureInput.AutoClick:Fire(playerWhoActivated)
+			self._debounce = false
 			return
 		end
 
-		local accepted, reason = CheckClick(playerWhoClicked, self._ClickDetector, self._maxActivationDistance)
+		local accepted, reason = CheckInput(playerWhoActivated, distance, self._input)
 
-		if accepted == true and reason == "VALID" then
-			self._onClick:Fire(playerWhoClicked)
+		if accepted == true and reason == "Valid" then
+			self._onClick:Fire(playerWhoActivated)
+			self._debounce = false
 			return
-		elseif accepted == false and reason == "TOO FAR" then
-			ServerStorage.Security.ClickTooFarAway:Fire(playerWhoClicked)
-			self._onTooFar:Fire(playerWhoClicked)
+		elseif accepted == false and reason == "DistanceError" then
+			SecureInput.TooFar:Fire(playerWhoActivated)
+			self._debounce = false
 			return
-		elseif accepted == false and reason == "NO EXIST" then
+		elseif accepted == false and reason == "ParamError" then
 			local currentData = {
 				PlayerWhoClicked = {
-					Instance = (playerWhoClicked and "Exists" or "Does not exist!"),
-					Name = (playerWhoClicked and playerWhoClicked.Name or "No name found!"),
-					UserId = (playerWhoClicked and playerWhoClicked.UserId or "No userid found!"),
+					Instance = (playerWhoActivated and "true" or "nil"),
+					Name = (playerWhoActivated and playerWhoActivated.Name or "nil"),
+					UserId = (playerWhoActivated and playerWhoActivated.UserId or "nil"),
 					Character = (
-						playerWhoClicked and playerWhoClicked.Character and playerWhoClicked.Character:GetFullName()
-						or "Does not exist!"
+						playerWhoActivated
+							and playerWhoActivated.Character
+							and playerWhoActivated.Character:GetFullName()
+						or "nil"
 					),
 					HumanoidRootPart = (
-						playerWhoClicked
-							and playerWhoClicked.Character
-							and playerWhoClicked.Character:FindFirstChild("HumanoidRootPart")
-							and "Exists"
-						or "Does not exist!"
+						playerWhoActivated
+							and playerWhoActivated.Character
+							and playerWhoActivated.Character:FindFirstChild("HumanoidRootPart")
+							and "true"
+						or "nil"
 					),
 				},
-				ClickDetector = {
-					Instance = (self._ClickDetector and "Exists" or "Does not exist!"),
-					Parent = (
-						self._ClickDetector
-							and self._ClickDetector.Parent
-							and self._ClickDetector.Parent:GetFullName()
-						or "Does not exist!"
-					),
+				Input = {
+					Instance = (self._input and "true" or "nil"),
+					Parent = (self._input and self._input.Part and self._input.Part:GetFullName() or "nil"),
 				},
 			}
 
-			warn(
-				"[SecureClick.Error] - Unexpected fail, printing data and firing onError.\n",
-				Utils.TableToString(currentData, "Click event data", true)
+			task.spawn(
+				error,
+				"[SecureInput.Error] - Unexpected fail, printing data and firing onError.\n"
+					.. Utils.TableToString(currentData, "Input event data", true)
 			)
 
-			self._onError:Fire("Something didn't exist", {
-				PlayerWhoClicked = {
-					Instance = ToBoolean(playerWhoClicked),
-					Name = ToBoolean(playerWhoClicked.Name),
-					UserId = ToBoolean(playerWhoClicked.UserId),
-					Character = ToBoolean(playerWhoClicked.Character),
-					HumanoidRootPart = ToBoolean(playerWhoClicked.Character:FindFirstChild("HumanoidRootPart")),
-				},
-				ClickDetector = {
-					Instance = ToBoolean(self._ClickDetector),
-					Parent = ToBoolean(self._ClickDetector.Parent),
-				},
-			})
 			self._debounce = false
 			return
 		end
@@ -263,4 +281,4 @@ function SecureClick.new(parent: Instance)
 	return self
 end
 
-return SecureClick
+return SecureInput
