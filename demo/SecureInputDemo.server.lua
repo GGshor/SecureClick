@@ -2,7 +2,11 @@ local ServerStorage = game:GetService("ServerStorage")
 
 local SecureInput = require(ServerStorage.SecureInput)
 
-local input = SecureInput.new(workspace.SpawnLocation):AddInput("ClickDetector"):AddInput("ProximityPrompt")
+local input = SecureInput.new(workspace.SpawnLocation)
+:AddInput("ClickDetector")
+:AddInput("ProximityPrompt", {ActionText = "Press", ObjectText = "SpawnPoint", HoldDuration = 0.5, Offset = Vector3.new(0, 0, 0.5)})
+:AddInput("VRHandInteract", {DisableOtherInputs = false})
+
 
 input:ConnectActivated(function(player)
 	print(player.Name, "has activated input!")
