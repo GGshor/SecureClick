@@ -10,14 +10,15 @@ local input = SecureInput.new(workspace.SpawnLocation)
 
 input:ConnectActivated(function(player)
 	print(player.Name, "has activated input!")
+	
 	input:Disable()
-	task.wait(10)
+	task.wait(5)
 	input:Enable()
 	
 	input:SetMaxActivationDistance(10)
 	print("Max activation distance set to 10")
 	
-	task.wait(10)
+	task.wait(5)
 	
 	input:Timeout(player, 10)
 	print("Timed out", player.Name, "for 10 seconds")
