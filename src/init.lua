@@ -5,7 +5,6 @@
 ]]
 
 local Players = game:GetService("Players")
-local ServerStorage = game:GetService("ServerStorage")
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
 
 local Maid = require(script.Maid)
@@ -46,23 +45,6 @@ local SecureInput = {
 	["AutoClick"] = Signal.new()
 }
 SecureInput.__index = SecureInput
-
---[=[
-	Makes argument a boolean
-
-	@within SecureInput
-
-	@param ... any -- Argument to make boolean
-
-	@return boolean
-]=]
-local function ToBoolean(...: any): boolean
-	if ... then
-		return true
-	else
-		return false
-	end
-end
 
 --[=[
 	Makes argument a boolean
