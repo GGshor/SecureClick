@@ -1,0 +1,28 @@
+{
+    "name": "SecureInput",
+    "tree": {
+        "$className": "DataModel",
+
+        "ServerScriptService": {
+            "$className": "ServerScriptService",
+
+            "$path": "demo/"
+        },
+
+        "ServerStorage": {
+            "$className": "ServerStorage",
+
+            "SecureInput": {
+                "$path": "src/"
+            }
+        },
+
+        "ReplicatedStorage": {
+            "$className": "ReplicatedStorage",
+
+            "Unified3DInput": {
+                "$path": "Unified-3D-Input/src"
+            }
+        }
+    }
+}
