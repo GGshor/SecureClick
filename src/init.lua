@@ -12,21 +12,19 @@ local Signal = require(script.Signal)
 local Utils = require(script.Utils)
 
 -- Init Unified3DInput
-local Unified3DInputModule = script.Unified3DInput
+local Unified3DInputModule = script:FindFirstChild("Unified3DInput")
 
-do
-	if ReplicatedStorage:FindFirstChild("Unified3DInput") then
-		Unified3DInputModule = ReplicatedStorage.Unified3DInput
-	else
-		script.Unified3DInput.Parent = ReplicatedStorage
-		Unified3DInputModule = ReplicatedStorage.Unified3DInput
-	end
-
-	Players.PlayerAdded:Connect(function(player)
-		local clone = script.SetupInput:Clone()
-		clone.Parent = player:WaitForChild("PlayerGui")
-	end)
+if ReplicatedStorage:FindFirstChild("Unified3DInput") then
+	Unified3DInputModule = ReplicatedStorage.Unified3DInput
+else
+	script.Unified3DInput.Parent = ReplicatedStorage
+	Unified3DInputModule = ReplicatedStorage.Unified3DInput
 end
+
+Players.PlayerAdded:Connect(function(player)
+	local clone = script.SetupInput:Clone()
+	clone.Parent = player:WaitForChild("PlayerGui")
+end)
 
 local Unified3DInput = require(Unified3DInputModule)
 local Unified3DInputTypes = require(Unified3DInputModule.Unified3DInputTypes)
@@ -130,7 +128,7 @@ end
 	@param properties {[string]: any}? -- Properties of instance
 ]=]
 function SecureInput:AddInput(inputType: string, properties: { [string]: any }?)
-	self._input:AddInpput(inputType, properties)
+	self._input:AddInput(inputType, properties)
 	return self
 end
 
