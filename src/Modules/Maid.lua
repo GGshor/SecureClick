@@ -36,7 +36,7 @@ Maid.ClassName = "Maid"
 ]=]
 function Maid.new()
 	return setmetatable({
-		_tasks = {}
+		_tasks = {},
 	}, Maid)
 end
 
@@ -132,10 +132,10 @@ function Maid:GiveTask(task)
 		error("Task cannot be false or nil", 2)
 	end
 
-	local taskId = #self._tasks+1
+	local taskId = #self._tasks + 1
 	self[taskId] = task
 
-	if type(task) == "table" and (not task.Destroy) then
+	if type(task) == "table" and not task.Destroy then
 		warn("[Maid.GiveTask] - Gave table task without .Destroy\n\n" .. debug.traceback())
 	end
 

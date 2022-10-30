@@ -11,7 +11,7 @@ local Utils = {}
 	@param label string? -- Add a label to string (like a title)
 	@param deepPrint boolean? -- Also tables in the given table
 ]=]
-function Utils.TableToString(tbl: {any}, label: string?, deepPrint: boolean?): string
+function Utils.TableToString(tbl: { any }, label: string?, deepPrint: boolean?): string
 	assert(type(tbl) == "table", "First argument must be a table")
 	assert(label == nil or type(label) == "string", "Second argument must be a string or nil")
 
@@ -34,11 +34,11 @@ function Utils.TableToString(tbl: {any}, label: string?, deepPrint: boolean?): s
 		local nonTbls = {}
 		local tbls = {}
 		local keySpaces = 0
-		for k,v in pairs(t) do
+		for k, v in pairs(t) do
 			if type(v) == "table" then
-				table.insert(tbls, {k = k, v = v})
+				table.insert(tbls, { k = k, v = v })
 			else
-				table.insert(nonTbls, {k = k, v = "[" .. typeof(v) .. "] " .. tostring(v)})
+				table.insert(nonTbls, { k = k, v = "[" .. typeof(v) .. "] " .. tostring(v) })
 			end
 			local spaces = #tostring(k) + 1
 			if spaces > keySpaces then
@@ -47,15 +47,15 @@ function Utils.TableToString(tbl: {any}, label: string?, deepPrint: boolean?): s
 		end
 		table.sort(nonTbls, AlphaKeySort)
 		table.sort(tbls, AlphaKeySort)
-		for _,v in ipairs(nonTbls) do
+		for _, v in ipairs(nonTbls) do
 			Insert(tostring(v.k) .. ":" .. (" "):rep(keySpaces - #tostring(v.k)) .. v.v, lvl)
 		end
 		if deepPrint then
-			for _,v in ipairs(tbls) do
+			for _, v in ipairs(tbls) do
 				ToString(v.v, lvl + 1, tostring(v.k) .. (" "):rep(keySpaces - #tostring(v.k)) .. " [Table]")
 			end
 		else
-			for _,v in ipairs(tbls) do
+			for _, v in ipairs(tbls) do
 				Insert(tostring(v.k) .. ":" .. (" "):rep(keySpaces - #tostring(v.k)) .. "[Table]", lvl)
 			end
 		end

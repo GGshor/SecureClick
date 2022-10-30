@@ -11,7 +11,6 @@ local Utils = require(script.Modules.Utils)
 --// Classes
 local ClickDetector = require(script.Classes.ClickDetector)
 
-
 --[=[
 	@class SecureClick
 	Creates secure clickdetectors
@@ -19,10 +18,9 @@ local ClickDetector = require(script.Classes.ClickDetector)
 	@server
 ]=]
 local SecureClick = {
-	["PublicBlacklist"] = {}
+	["PublicBlacklist"] = {},
 }
 SecureClick.__index = SecureClick
-
 
 --[=[
 	Makes argument a boolean
@@ -53,11 +51,17 @@ end
 	@return boolean -- If click is valid
 	@return string -- Reason
 ]=]
-local function CheckClick(playerWhoClicked: Player, clickDetector: ClickDetector, maxActivationDistance: number): (boolean, string)
-	if (playerWhoClicked and
-		playerWhoClicked.Character and
-		playerWhoClicked.Character:FindFirstChild("HumanoidRootPart")) and
-		(clickDetector and clickDetector.Parent)
+local function CheckClick(
+	playerWhoClicked: Player,
+	clickDetector: ClickDetector,
+	maxActivationDistance: number
+): (boolean, string)
+	if
+		(
+			playerWhoClicked
+			and playerWhoClicked.Character
+			and playerWhoClicked.Character:FindFirstChild("HumanoidRootPart")
+		) and (clickDetector and clickDetector.Parent)
 	then
 		local character = playerWhoClicked.Character
 		local root = character.HumanoidRootPart
@@ -67,16 +71,13 @@ local function CheckClick(playerWhoClicked: Player, clickDetector: ClickDetector
 
 		if distance <= (maxActivationDistance + 1) then -- Add 1 to avoid false detections
 			return true, "VALID"
-
 		else
 			return false, "TOO FAR"
 		end
-
 	else
 		return false, "NO EXIST"
 	end
 end
-
 
 --[=[
 	Adds player to the public blacklist
@@ -159,7 +160,10 @@ function SecureClick.new(parent: Instance)
 			return
 		end
 
-		if table.find(SecureClick.PublicBlacklist, playerWhoClicked.UserId) or table.find(self._privateBlacklist, playerWhoClicked.UserId) then
+		if
+			table.find(SecureClick.PublicBlacklist, playerWhoClicked.UserId)
+			or table.find(self._privateBlacklist, playerWhoClicked.UserId)
+		then
 			self._onBlock:Fire(playerWhoClicked)
 			return
 		end
@@ -195,47 +199,61 @@ function SecureClick.new(parent: Instance)
 			return
 		end
 
-
 		local accepted, reason = CheckClick(playerWhoClicked, self._ClickDetector, self._maxActivationDistance)
 
 		if accepted == true and reason == "VALID" then
 			self._onClick:Fire(playerWhoClicked)
 			return
-
 		elseif accepted == false and reason == "TOO FAR" then
 			ServerStorage.Security.ClickTooFarAway:Fire(playerWhoClicked)
 			self._onTooFar:Fire(playerWhoClicked)
 			return
-
-		elseif accepted == false and reason == "NO EXIST" then		
+		elseif accepted == false and reason == "NO EXIST" then
 			local currentData = {
 				PlayerWhoClicked = {
-					Instance = (playerWhoClicked and "Exists" or "Does not exist!");
-					Name = (playerWhoClicked and playerWhoClicked.Name or "No name found!");
-					UserId = (playerWhoClicked and playerWhoClicked.UserId or "No userid found!");
-					Character = (playerWhoClicked and playerWhoClicked.Character and playerWhoClicked.Character:GetFullName() or "Does not exist!");
-					HumanoidRootPart = (playerWhoClicked and playerWhoClicked.Character and playerWhoClicked.Character:FindFirstChild("HumanoidRootPart") and "Exists" or "Does not exist!");
-				};
+					Instance = (playerWhoClicked and "Exists" or "Does not exist!"),
+					Name = (playerWhoClicked and playerWhoClicked.Name or "No name found!"),
+					UserId = (playerWhoClicked and playerWhoClicked.UserId or "No userid found!"),
+					Character = (
+						playerWhoClicked and playerWhoClicked.Character and playerWhoClicked.Character:GetFullName()
+						or "Does not exist!"
+					),
+					HumanoidRootPart = (
+						playerWhoClicked
+							and playerWhoClicked.Character
+							and playerWhoClicked.Character:FindFirstChild("HumanoidRootPart")
+							and "Exists"
+						or "Does not exist!"
+					),
+				},
 				ClickDetector = {
-					Instance = (self._ClickDetector and "Exists" or "Does not exist!");
-					Parent = (self._ClickDetector and self._ClickDetector.Parent and self._ClickDetector.Parent:GetFullName() or "Does not exist!");
-				}
+					Instance = (self._ClickDetector and "Exists" or "Does not exist!"),
+					Parent = (
+						self._ClickDetector
+							and self._ClickDetector.Parent
+							and self._ClickDetector.Parent:GetFullName()
+						or "Does not exist!"
+					),
+				},
 			}
 
-			warn("[SecureClick.Error] - Unexpected fail, printing data and firing onError.\n", Utils.TableToString(currentData, "Click event data", true))
+			warn(
+				"[SecureClick.Error] - Unexpected fail, printing data and firing onError.\n",
+				Utils.TableToString(currentData, "Click event data", true)
+			)
 
 			self._onError:Fire("Something didn't exist", {
 				PlayerWhoClicked = {
-					Instance = ToBoolean(playerWhoClicked);
-					Name = ToBoolean(playerWhoClicked.Name);
-					UserId = ToBoolean(playerWhoClicked.UserId);
-					Character = ToBoolean(playerWhoClicked.Character);
-					HumanoidRootPart = ToBoolean(playerWhoClicked.Character:FindFirstChild("HumanoidRootPart"));
-				};
+					Instance = ToBoolean(playerWhoClicked),
+					Name = ToBoolean(playerWhoClicked.Name),
+					UserId = ToBoolean(playerWhoClicked.UserId),
+					Character = ToBoolean(playerWhoClicked.Character),
+					HumanoidRootPart = ToBoolean(playerWhoClicked.Character:FindFirstChild("HumanoidRootPart")),
+				},
 				ClickDetector = {
-					Instance = ToBoolean(self._ClickDetector);
-					Parent = ToBoolean(self._ClickDetector.Parent);
-				}
+					Instance = ToBoolean(self._ClickDetector),
+					Parent = ToBoolean(self._ClickDetector.Parent),
+				},
 			})
 			self._debounce = false
 			return

@@ -69,7 +69,7 @@ end
 
 	@return RBXScriptConnection -- Connection that is made
 ]=]
-function ClickDetector:OnError(callback: (reason: string, data: {[string]: any}) -> ())
+function ClickDetector:OnError(callback: (reason: string, data: { [string]: any }) -> ())
 	return self._onError:Connect(callback)
 end
 
@@ -99,7 +99,7 @@ end
 
 	@param id string | number -- Asset ID of image
 --]]
-function ClickDetector:SetCursorIcon(id: string|number)
+function ClickDetector:SetCursorIcon(id: string | number)
 	if typeof(id) == "number" then
 		id = "rbxassetid://" .. tostring(id)
 	end
@@ -164,6 +164,5 @@ function ClickDetector:Destroy()
 	self = nil
 	return nil
 end
-
 
 return ClickDetector
