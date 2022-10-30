@@ -24,7 +24,7 @@ do
 
 	Players.PlayerAdded:Connect(function(player)
 		local clone = script.SetupInput:Clone()
-		clone.Parent = player:WaitForChild("PlayerScripts")
+		clone.Parent = player:WaitForChild("PlayerGui")
 	end)
 end
 
@@ -115,10 +115,23 @@ end
 --[=[
 	Runs given function if input is valid
 
-	@param func () -> (playerWhoActivated: Player) -- The function to connect to
+	@param func (playerWhoActivated: Player) -> () -- The function to connect to
+
+	@return RBXScriptConnection
 ]=]
-function SecureInput:ConnectActivated(func: () -> (Player))
+function SecureInput:ConnectActivated(func: (Player) -> ())
 	self._onClick:Connect(func)
+end
+
+--[=[
+	Adds new input
+
+	@param inputType string -- Type of input, current types: "ClickDetector", "ProximityPrompt" and "VRHandInteract"
+	@param properties {[string]: any}? -- Properties of instance
+]=]
+function SecureInput:AddInput(inputType: string, properties: {[string]: any}?)
+	self._input:AddInpput(inputType, properties)
+	return self
 end
 
 --[=[
@@ -156,7 +169,7 @@ function SecureInput.new(parent: Instance)
 		self._debounce = true
 
 		if
-			table.find(SecureInput.PublicBlacklist, playerWhoActivated.UserId)
+			table.find(SecureInput.Blacklist, playerWhoActivated.UserId)
 			or table.find(self._blacklist, playerWhoActivated.UserId)
 		then
 			self._debounce = false
@@ -164,30 +177,30 @@ function SecureInput.new(parent: Instance)
 		end
 
 		task.spawn(function()
-			if self._privateClickCount[tostring(playerWhoActivated.UserId)] then
-				self._privateClickCount[tostring(playerWhoActivated.UserId)] += 1
+			if self._clickCount[tostring(playerWhoActivated.UserId)] then
+				self._clickCount[tostring(playerWhoActivated.UserId)] += 1
 
 				task.wait(1)
 
-				if self._privateClickCount[tostring(playerWhoActivated.UserId)] > 0 then
-					self._privateClickCount[tostring(playerWhoActivated.UserId)] -= 1
+				if self._clickCount[tostring(playerWhoActivated.UserId)] > 0 then
+					self._clickCount[tostring(playerWhoActivated.UserId)] -= 1
 				else
-					self._privateClickCount[tostring(playerWhoActivated.UserId)] = 0
+					self._clickCount[tostring(playerWhoActivated.UserId)] = 0
 				end
 			else
-				self._privateClickCount[tostring(playerWhoActivated.UserId)] = 1
+				self._clickCount[tostring(playerWhoActivated.UserId)] = 1
 
 				task.wait(1)
 
-				if self._privateClickCount[tostring(playerWhoActivated.UserId)] > 0 then
-					self._privateClickCount[tostring(playerWhoActivated.UserId)] -= 1
+				if self._clickCount[tostring(playerWhoActivated.UserId)] > 0 then
+					self._clickCount[tostring(playerWhoActivated.UserId)] -= 1
 				else
-					self._privateClickCount[tostring(playerWhoActivated.UserId)] = 0
+					self._clickCount[tostring(playerWhoActivated.UserId)] = 0
 				end
 			end
 		end)
 
-		if self._privateClickCount[tostring(playerWhoActivated.UserId)] > 16 then
+		if self._clickCount[tostring(playerWhoActivated.UserId)] > 16 then
 			self:Timeout(playerWhoActivated, (5 * 60))
 			SecureInput.AutoClick:Fire(playerWhoActivated)
 			self._debounce = false
