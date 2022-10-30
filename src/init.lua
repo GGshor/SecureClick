@@ -129,8 +129,34 @@ end
 	@param inputType string -- Type of input, current types: "ClickDetector", "ProximityPrompt" and "VRHandInteract"
 	@param properties {[string]: any}? -- Properties of instance
 ]=]
-function SecureInput:AddInput(inputType: string, properties: {[string]: any}?)
+function SecureInput:AddInput(inputType: string, properties: { [string]: any }?)
 	self._input:AddInpput(inputType, properties)
+	return self
+end
+
+--[=[
+	Changes max activation distance
+
+	@param distance number -- New max activation distance
+]=]
+function SecureInput:SetMaxActivationDistance(distance: number)
+	self._input:SetMaxActivationDistance(distance)
+	return self
+end
+
+--[=[
+	Enables input (Note, input is enabled by default)
+]=]
+function SecureInput:Enable()
+	self._input:Enable()
+	return self
+end
+
+--[=[
+	Disables input
+]=]
+function SecureInput:Disable()
+	self._input:Disable()
 	return self
 end
 
