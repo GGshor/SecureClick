@@ -177,7 +177,7 @@ function SecureInput.new(parent: Instance)
 	local onClick = Signal.new()
 
 	self._maid = maid
-	self._debounce = false
+	self._debounce = {} :: {[Player]: boolean}
 	self._onClick = onClick
 	self._input = Input
 	self._blacklist = {}
@@ -187,7 +187,7 @@ function SecureInput.new(parent: Instance)
 	self._maid.input = self._input
 
 	self._input.Activated:Connect(function(playerWhoActivated: Player, distance: number)
-		if self._debounce == true then
+		if self._debounce[playerWhoActivated] == true then
 			return
 		end
 		self._debounce = true
@@ -196,7 +196,7 @@ function SecureInput.new(parent: Instance)
 			table.find(SecureInput.Blacklist, playerWhoActivated.UserId)
 			or table.find(self._blacklist, playerWhoActivated.UserId)
 		then
-			self._debounce = false
+			self._debounce[playerWhoActivated] = false
 			return
 		end
 
@@ -227,7 +227,7 @@ function SecureInput.new(parent: Instance)
 		if self._clickCount[tostring(playerWhoActivated.UserId)] > 16 then
 			self:Timeout(playerWhoActivated, (5 * 60))
 			SecureInput.AutoClick:Fire(playerWhoActivated)
-			self._debounce = false
+			self._debounce[playerWhoActivated] = false
 			return
 		end
 
@@ -235,11 +235,11 @@ function SecureInput.new(parent: Instance)
 
 		if accepted == true and reason == "Valid" then
 			self._onClick:Fire(playerWhoActivated)
-			self._debounce = false
+			self._debounce[playerWhoActivated] = false
 			return
 		elseif accepted == false and reason == "DistanceError" then
 			SecureInput.TooFar:Fire(playerWhoActivated)
-			self._debounce = false
+			self._debounce[playerWhoActivated] = false
 			return
 		elseif accepted == false and reason == "ParamError" then
 			local currentData = {
@@ -273,7 +273,7 @@ function SecureInput.new(parent: Instance)
 					.. Utils.TableToString(currentData, "Input event data", true)
 			)
 
-			self._debounce = false
+			self._debounce[playerWhoActivated] = false
 			return
 		end
 	end)
